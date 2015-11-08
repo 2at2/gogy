@@ -37,31 +37,7 @@ func (o *Decorator) DecorateList(list []log.Log, placeholders bool) {
 
         fmt.Printf("%s ", color.GreenString(entity.Id))
 
-        var level string
-        switch entity.Level.Code {
-        case log.DEBUG:
-            level = color.BlackString(entity.Level.Code)
-            break
-        case log.INFO, log.NOTICE:
-            level = color.BlueString(entity.Level.Code)
-            break
-        case log.WARNING:
-            level = color.YellowString(entity.Level.Code)
-            break
-        case log.ERROR:
-            level = color.RedString(entity.Level.Code)
-            break
-        case log.CRITICAL, log.ALERT:
-            s := color.New(color.FgWhite, color.BgRed).SprintFunc()
-            level = fmt.Sprint(s(entity.Level.Code))
-            break
-        case log.EMERGENCY:
-            s := color.New(color.FgWhite, color.Bold, color.BgHiRed).SprintFunc()
-            level = fmt.Sprint(s(entity.Level.Code))
-            break
-        default:
-            level = entity.Level.Code
-        }
+        level := o.colorizeLevel(entity.Level)
         fmt.Printf("%s ", level)
 
         message := entity.Message
@@ -73,6 +49,69 @@ func (o *Decorator) DecorateList(list []log.Log, placeholders bool) {
 
         fmt.Println()
     }
+}
+
+func (o *Decorator) DecorateDetails(entity log.Log) {
+    fmt.Println()
+    c := color.New(color.FgGreen, color.Bold)
+    c.Println("Response")
+
+    fmt.Printf(" • Id: %s", color.GreenString(entity.Id))
+    fmt.Println()
+
+    level := o.colorizeLevel(entity.Level)
+    fmt.Printf(" • Level: %s", level)
+    fmt.Println()
+
+    date := entity.Time.Format(time.Stamp)
+    fmt.Printf(" • Time: %s", color.WhiteString(date))
+    fmt.Println()
+
+    fmt.Printf(" • Host: %s", color.WhiteString(entity.Host))
+    fmt.Println()
+
+    fmt.Printf(" • Script id: %s", color.GreenString(entity.ScriptId))
+    fmt.Println()
+
+    message := o.replacePlaceholders(entity.Message, entity.Source)
+    fmt.Printf(" • Message: %s", color.CyanString(message))
+    fmt.Println()
+
+    fmt.Printf(" • Session id: %s", color.YellowString(entity.SessionId))
+    fmt.Println()
+
+    fmt.Println(" • Details:")
+
+    style1 := color.New(color.FgWhite, color.BgBlack)
+    if v := entity.Source["file"]; v != nil {
+        r := regexp.MustCompile("v[.0-9]+")
+        release := r.FindString(v.(string))
+        style1.Printf("   • Release: %s", color.YellowString(release))
+        style1.Println()
+
+        style1.Printf("   • File: %s", v)
+        style1.Println()
+
+        if v := entity.Source["line"]; v != nil {
+            style1.Printf("   • Line: %s", fmt.Sprint(v))
+            fmt.Println()
+        }
+
+    }
+
+    // TODO
+    if exception := entity.Source["exception"]; exception != nil {
+        if v := entity.Source["exception.code"]; v != nil {
+            style1.Printf("   • exception.code: %s", v)
+            fmt.Println()
+        }
+        if v := entity.Source["exception.message"]; v != nil {
+            style1.Printf("   • exception.message: %s", v)
+            fmt.Println()
+        }
+    }
+
+    fmt.Println()
 }
 
 func (obj *Decorator) replacePlaceholders(str string, placeholders map[string]interface{}) string {
@@ -96,6 +135,37 @@ func (obj *Decorator) replacePlaceholders(str string, placeholders map[string]in
 
             str = strings.Replace(str, key, value.(string), -1)
         }
+    }
+
+    return str
+}
+
+func (obj *Decorator) colorizeLevel(level log.LogLevel) string {
+    var str string
+
+    switch level.Code {
+    case log.DEBUG:
+        str = color.BlackString(level.Code)
+        break
+    case log.INFO, log.NOTICE:
+        str = color.BlueString(level.Code)
+        break
+    case log.WARNING:
+        str = color.YellowString(level.Code)
+        break
+    case log.ERROR:
+        str = color.RedString(level.Code)
+        break
+    case log.CRITICAL, log.ALERT:
+        s := color.New(color.FgWhite, color.BgRed).SprintFunc()
+        str = fmt.Sprint(s(level.Code))
+        break
+    case log.EMERGENCY:
+        s := color.New(color.FgWhite, color.Bold, color.BgHiRed).SprintFunc()
+        str = fmt.Sprint(s(level.Code))
+        break
+    default:
+        str = level.Code
     }
 
     return str

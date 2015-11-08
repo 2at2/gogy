@@ -12,24 +12,35 @@ import (
 func main() {
     // Command options
     level           := flag.String("log-level", "", "Log level")
-    size            := flag.Int("size", 10, "Size")
-    lastHours       := flag.Int("lastHours", 24, "Logs of the last hourse")
-    scriptId        := flag.String("script-id", "", "Script id")
+    size            := flag.Int("size", 100, "Size")
+    lastHours       := flag.Int("lastHours", 72, "Logs of the last hourse")
+    scriptId        := flag.String("scriptId", "", "Script id")
+    sessionId       := flag.String("sessionId", "", "Session id")
+    message         := flag.String("message", "", "Message")
     flag.Parse()
 
     // Build query
     var query string
 
-    // Log id
     if len(*scriptId) > 0 {
         query += fmt.Sprintf(`script-id: "%s"`, *scriptId)
     }
 
-    logLevel := convertLevelToQuery(*level)
-    if (len(query) > 0) {
-        query += " AND (" + logLevel + ")"
-    } else {
-        query = logLevel
+    if len(*sessionId) > 0 {
+        query += fmt.Sprintf(`sessionId: "%s"`, *sessionId)
+    }
+
+    if len(*message) > 0 {
+        query += fmt.Sprintf(`message: "%s"`, *message)
+    }
+
+    if len(*level) > 0 {
+        logLevel := convertLevelToQuery(*level)
+        if (len(query) > 0) {
+            query += " AND (" + logLevel + ")"
+        } else {
+            query = logLevel
+        }
     }
 
     if args := flag.Args(); cap(args) > 0 {
