@@ -10,11 +10,9 @@ import (
 )
 
 func main() {
-    var config component.Config
-    config.Init()
-
-    lastHours := flag.Int("lastHours", 72, "Logs of the last hourse")
-    size      := flag.Int("size", 10, "Size")
+    configFile  := flag.String("config", "", "Config file")
+    lastHours   := flag.Int("lastHours", 72, "Logs of the last hourse")
+    size        := flag.Int("size", 10, "Size")
     flag.Parse()
 
     id := flag.Arg(0)
@@ -36,6 +34,9 @@ func main() {
         Size: *size,
     }
 
+    config := component.Config{Filename: *configFile}
+    config.Init()
+
     client := component.Client{
         Host: config.Logstash.Host,
         Login: config.Logstash.Login,
@@ -43,7 +44,7 @@ func main() {
     }
 
     list := client.FindLogs(request)
-fmt.Println(list)
+
     decorator := component.Decorator{}
     decorator.DecorateRequest(request)
 

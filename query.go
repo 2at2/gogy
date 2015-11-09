@@ -11,6 +11,7 @@ import (
 
 func main() {
     // Command options
+    configFile      := flag.String("config", "", "Config file")
     level           := flag.String("log-level", "", "Log level")
     size            := flag.Int("size", 100, "Size")
     lastHours       := flag.Int("lastHours", 72, "Logs of the last hourse")
@@ -54,7 +55,7 @@ func main() {
         query = "*"
     }
 
-    var config component.Config
+    config := component.Config{Filename: *configFile}
     config.Init()
 
     endTime := time.Now()
