@@ -1,7 +1,6 @@
 package component
 
-import (
-)
+import ()
 
 type Reader map[string]interface{}
 

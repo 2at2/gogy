@@ -5,16 +5,16 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"path/filepath"
+	"os"
+	"fmt"
+	"log"
 )
 
 type Config struct {
 	init     bool
+	Env string
 	Filename string
-	Logstash struct {
-		Host     string `yaml:"host"`
-		Login    string `yaml:"login"`
-		Password string `yaml:"password"`
-	} `yaml:"logstash"`
+	Source map[string]interface{}
 }
 
 func (o *Config) Init() {
@@ -23,9 +23,24 @@ func (o *Config) Init() {
 			panic(errors.New("Config file must be declared"))
 		}
 
-		filename, _ := filepath.Abs(o.Filename)
+		dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(dir)
 
-		yamlFile, err := ioutil.ReadFile(filename)
+		var filename string
+		if _, err := os.Stat("./config/"); os.IsExist(err) {
+			filename = "./config/" + o.Filename + ".yml"
+		} else if _, err := os.Stat("./../config/"); os.IsExist(err) {
+			filename = "./../config/" + o.Filename + ".yml"
+		} else {
+			panic(errors.New("Cannot find config directory"))
+		}
+
+		path, _ := filepath.Abs(filename)
+
+		yamlFile, err := ioutil.ReadFile(path)
 
 		if err != nil {
 			panic(err)
