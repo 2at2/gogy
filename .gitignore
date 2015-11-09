@@ -1,1 +1,2 @@
-config/params.yml
+config/*.live.yml
+config/*.rel.yml

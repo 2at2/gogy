@@ -1,9 +1,9 @@
 package err
 
 type MandatoryArgumentError struct {
-    Key string
+	Key string
 }
 
 func (e *MandatoryArgumentError) Error() string {
-    return "Mandatory argument " + e.Key + " is missing"
+	return "Mandatory argument " + e.Key + " is missing"
 }

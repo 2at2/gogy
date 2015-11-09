@@ -1,54 +1,54 @@
 package main
 
 import (
-    "gogy/component"
-    "time"
-    "gogy/model"
-    "flag"
-    "fmt"
-    "os"
+	"flag"
+	"fmt"
+	"gogy/component"
+	"gogy/model"
+	"os"
+	"time"
 )
 
 func main() {
-    configFile  := flag.String("config", "", "Config file")
-    lastHours   := flag.Int("lastHours", 72, "Logs of the last hourse")
-    size        := flag.Int("size", 10, "Size")
-    flag.Parse()
+	configFile := flag.String("config", "", "Config file")
+	lastHours := flag.Int("lastHours", 24, "Logs of the last hourse")
+	size := flag.Int("size", 10, "Size")
+	flag.Parse()
 
-    id := flag.Arg(0)
+	id := flag.Arg(0)
 
-    if len(id) == 0 {
-        fmt.Println("Argument `id` missed")
-        os.Exit(0)
-    }
+	if len(id) == 0 {
+		fmt.Println("Argument `id` missed")
+		os.Exit(0)
+	}
 
-    query := fmt.Sprintf(`_id:"%s"`, id)
+	query := fmt.Sprintf(`_id:"%s"`, id)
 
-    endTime := time.Now()
-    startTime := endTime.Add(- time.Duration(*lastHours) * time.Hour);
+	endTime := time.Now()
+	startTime := endTime.Add(-time.Duration(*lastHours) * time.Hour)
 
-    request := model.Request{
-        Query: query,
-        TimeStart: startTime.UnixNano() / int64(time.Millisecond),
-        TimeEnd: endTime.UnixNano() / int64(time.Millisecond),
-        Size: *size,
-    }
+	request := model.Request{
+		Query:     query,
+		TimeStart: startTime.UnixNano() / int64(time.Millisecond),
+		TimeEnd:   endTime.UnixNano() / int64(time.Millisecond),
+		Size:      *size,
+	}
 
-    config := component.Config{Filename: *configFile}
-    config.Init()
+	config := component.Config{Filename: *configFile}
+	config.Init()
 
-    client := component.Client{
-        Host: config.Logstash.Host,
-        Login: config.Logstash.Login,
-        Password: config.Logstash.Password,
-    }
+	client := component.Client{
+		Host:     config.Logstash.Host,
+		Login:    config.Logstash.Login,
+		Password: config.Logstash.Password,
+	}
 
-    list := client.FindLogs(request)
+	list := client.FindLogs(request)
 
-    decorator := component.Decorator{}
-    decorator.DecorateRequest(request)
+	decorator := component.Decorator{}
+	decorator.DecorateRequest(request)
 
-    for _, log := range list {
-        decorator.DecorateDetails(log)
-    }
+	for _, log := range list {
+		decorator.DecorateDetails(log)
+	}
 }

@@ -1,116 +1,116 @@
 package component
 
 import (
-    "fmt"
-    "net/http"
-    "io/ioutil"
-    "encoding/json"
-    "gogy/model"
-    "strings"
-    "gogy/model/log"
-    "time"
+	"encoding/json"
+	"fmt"
+	"gogy/model"
+	"gogy/model/log"
+	"io/ioutil"
+	"net/http"
+	"strings"
+	"time"
 )
 
 type Client struct {
-    Host string
-    Login string
-    Password string
+	Host     string
+	Login    string
+	Password string
 }
 
 func (c *Client) FindLogs(query model.Request) []log.Log {
-    aliases := strings.Join(c.getAliases(), ",")
+	aliases := strings.Join(c.getAliases(), ",")
 
-    url := fmt.Sprintf("https://%s:%s@%s/%s/_search", c.Login, c.Password, c.Host, aliases)
+	url := fmt.Sprintf("https://%s:%s@%s/%s/_search", c.Login, c.Password, c.Host, aliases)
 
-    request := c.buildRequest(query)
+	request := c.buildRequest(query)
 
-    resp, err := http.Post(url, "", strings.NewReader(request))
-    if (err != nil) {
-        panic(err)
-    }
+	resp, err := http.Post(url, "", strings.NewReader(request))
+	if err != nil {
+		panic(err)
+	}
 
-    bytes, err := ioutil.ReadAll(resp.Body)
+	bytes, err := ioutil.ReadAll(resp.Body)
 
-    var response model.Response
+	var response model.Response
 
-    errJson := json.Unmarshal(bytes, &response)
+	errJson := json.Unmarshal(bytes, &response)
 
-    if (errJson != nil) {
-        panic(errJson)
-    }
+	if errJson != nil {
+		panic(errJson)
+	}
 
-    var list []log.Log
+	var list []log.Log
 
-    for _, hit := range response.Hits.Hit {
-        t, e := time.Parse(time.RFC3339, hit.Source["@timestamp"].(string))
+	for _, hit := range response.Hits.Hit {
+		t, e := time.Parse(time.RFC3339, hit.Source["@timestamp"].(string))
 
-        if e != nil {
-            panic(e)
-        }
+		if e != nil {
+			panic(e)
+		}
 
-        level := log.LogLevel{}
-        level.SetFromString(hit.Source["log-level"].(string))
+		level := log.LogLevel{}
+		level.SetFromString(hit.Source["log-level"].(string))
 
-        message := ""
-        if v := hit.Source["message"]; v != nil {
-            message = v.(string)
-        }
-        host := ""
-        if v := hit.Source["host"]; v != nil {
-            host = v.(string)
-        }
-        scriptId := ""
-        if v := hit.Source["script-id"]; v != nil {
-            scriptId = v.(string)
-        }
-        sessionId := ""
-        if v := hit.Source["sessionId"]; v != nil {
-            sessionId = v.(string)
-        }
+		message := ""
+		if v := hit.Source["message"]; v != nil {
+			message = v.(string)
+		}
+		host := ""
+		if v := hit.Source["host"]; v != nil {
+			host = v.(string)
+		}
+		scriptId := ""
+		if v := hit.Source["script-id"]; v != nil {
+			scriptId = v.(string)
+		}
+		sessionId := ""
+		if v := hit.Source["sessionId"]; v != nil {
+			sessionId = v.(string)
+		}
 
-        list = append(list, log.Log{
-            hit.Id,
-            level,
-            message,
-            t,
-            host,
-            scriptId,
-            sessionId,
-            hit.Source,
-        })
-    }
+		list = append(list, log.Log{
+			hit.Id,
+			level,
+			message,
+			t,
+			host,
+			scriptId,
+			sessionId,
+			hit.Source,
+		})
+	}
 
-    return list
+	return list
 }
 
 func (c *Client) getAliases() []string {
-    url := fmt.Sprintf("https://%s:%s@%s/_aliases", c.Login, c.Password, c.Host)
+	url := fmt.Sprintf("https://%s:%s@%s/_aliases", c.Login, c.Password, c.Host)
 
-    resp, err := http.Get(url)
+	resp, err := http.Get(url)
 
-    if (err != nil) {
-        panic(err)
-    }
+	if err != nil {
+		panic(err)
+	}
 
-    bytes, err := ioutil.ReadAll(resp.Body)
+	bytes, err := ioutil.ReadAll(resp.Body)
 
-    var response map[string]interface{}
+	var response map[string]interface{}
 
-    errJson := json.Unmarshal(bytes, &response)
-    if (errJson != nil) {
-        panic(errJson)
-    }
+	errJson := json.Unmarshal(bytes, &response)
+	if errJson != nil {
+		panic(errJson)
+	}
 
-    var aliases []string
-    for key, _ := range response {
-        aliases = append(aliases, key)
-    }
+	var aliases []string
+	for key, _ := range response {
+		aliases = append(aliases, key)
+	}
 
-    return aliases
+	return aliases
 }
 
 func (c *Client) buildRequest(q model.Request) string {
-    request := `{
+	request := `{
         "query":{
           "filtered":{
              "query":{
@@ -157,13 +157,13 @@ func (c *Client) buildRequest(q model.Request) string {
         ]
     }`
 
-    request = fmt.Sprintf(
-        request,
-        strings.Replace(q.Query, "\"", "\\\"", -1),
-        q.TimeStart,
-        q.TimeEnd,
-        q.Size,
-    )
+	request = fmt.Sprintf(
+		request,
+		strings.Replace(q.Query, "\"", "\\\"", -1),
+		q.TimeStart,
+		q.TimeEnd,
+		q.Size,
+	)
 
-    return request;
+	return request
 }
