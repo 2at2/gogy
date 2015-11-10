@@ -4,9 +4,8 @@ import (
 	"errors"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"path/filepath"
 	"os"
-	"github.com/mitchellh/go-homedir"
+	"path/filepath"
 )
 
 type Config struct {
@@ -26,24 +25,7 @@ func (o *Config) InitConfigFile(filename string) {
 
 		var path string
 
-		// Read from current folder
-		current, _ := os.Getwd()
-		if o.existsFile(current, filename) {
-			path = stat
-		}
-
-		home, err := homedir.Dir()
-		if err != nil {
-			if o.existsFile(home, filename) {
-				path = stat
-			}
-		}
-
-		if len(path) == 0 {
-			panic(errors.New("Cannot find config file"))
-		}
-
-		path, _ = filepath.Abs(path)
+		path, _ = filepath.Abs(filename)
 
 		yamlFile, err := ioutil.ReadFile(path)
 
@@ -51,7 +33,7 @@ func (o *Config) InitConfigFile(filename string) {
 			panic(err)
 		}
 
-		err = yaml.Unmarshal(yamlFile, &o)
+		err = yaml.Unmarshal(yamlFile, &o.Source)
 		if err != nil {
 			panic(err)
 		}
@@ -60,7 +42,7 @@ func (o *Config) InitConfigFile(filename string) {
 	}
 }
 
-func(o *Config) existsFile(folder, filename string) (bool) {
+func (o *Config) existsFile(folder, filename string) bool {
 	pathSeparator := string(os.PathSeparator)
 
 	if len(folder) > 0 && folder[len(folder)-1:] != pathSeparator {

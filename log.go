@@ -34,13 +34,13 @@ func main() {
 		Size:      *size,
 	}
 
-	config := component.Config{Filename: *configFile}
-	config.Init()
+	config := component.Config{}
+	config.InitConfigFile(*configFile)
 
 	client := component.Client{
-		Host:     config.Logstash.Host,
-		Login:    config.Logstash.Login,
-		Password: config.Logstash.Password,
+		Host:     config.Source["logstash.host"].(string),
+		Login:    config.Source["logstash.login"].(string),
+		Password: config.Source["logstash.password"].(string),
 	}
 
 	list := client.FindLogs(request)

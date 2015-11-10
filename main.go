@@ -13,5 +13,4 @@ func main() {
 	rootCmd.AddCommand(command.QueryCmd)
 	rootCmd.Execute()
 
-
 }
