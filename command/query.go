@@ -66,8 +66,8 @@ func execute(args []string) {
         query = "*"
     }
 
-    config := component.Config{Filename: "logstash", Env: env}
-    config.Init()
+    config := component.Config{Env: env}
+    config.InitConfigFile("params")
 
     fmt.Println(config.Source)
 

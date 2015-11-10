@@ -6,39 +6,44 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"os"
-	"fmt"
-	"log"
+	"github.com/mitchellh/go-homedir"
 )
 
 type Config struct {
 	init     bool
-	Env string
+	Env      string
 	Filename string
-	Source map[string]interface{}
+	File     *os.File
+	Source   map[string]interface{}
 }
 
-func (o *Config) Init() {
+func (o *Config) InitConfigFile(filename string) {
 	if o.init == false {
+		o.Filename = filename + "." + o.Env + ".yml"
 		if len(o.Filename) == 0 {
 			panic(errors.New("Config file must be declared"))
 		}
 
-		dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+		var path string
+
+		// Read from current folder
+		current, _ := os.Getwd()
+		if o.existsFile(current, filename) {
+			path = stat
+		}
+
+		home, err := homedir.Dir()
 		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(dir)
-
-		var filename string
-		if _, err := os.Stat("./config/"); os.IsExist(err) {
-			filename = "./config/" + o.Filename + ".yml"
-		} else if _, err := os.Stat("./../config/"); os.IsExist(err) {
-			filename = "./../config/" + o.Filename + ".yml"
-		} else {
-			panic(errors.New("Cannot find config directory"))
+			if o.existsFile(home, filename) {
+				path = stat
+			}
 		}
 
-		path, _ := filepath.Abs(filename)
+		if len(path) == 0 {
+			panic(errors.New("Cannot find config file"))
+		}
+
+		path, _ = filepath.Abs(path)
 
 		yamlFile, err := ioutil.ReadFile(path)
 
@@ -52,5 +57,21 @@ func (o *Config) Init() {
 		}
 
 		o.init = true
+	}
+}
+
+func(o *Config) existsFile(folder, filename string) (bool) {
+	pathSeparator := string(os.PathSeparator)
+
+	if len(folder) > 0 && folder[len(folder)-1:] != pathSeparator {
+		folder = folder + pathSeparator
+	}
+
+	name := folder + filename
+
+	if _, err := os.Stat(name); err == nil {
+		return true
+	} else {
+		return false
 	}
 }
