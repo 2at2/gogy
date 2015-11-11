@@ -1,59 +1,22 @@
 package component
 
 import (
-	"errors"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"os"
-	"path/filepath"
+	"bytes"
+	"github.com/gotterdemarung/go-configfile"
 )
 
-type Config struct {
-	init     bool
-	Env      string
-	Filename string
-	File     *os.File
-	Source   map[string]interface{}
-}
+func LoadConfig(configFile string) ([]byte, error) {
+	configReader := configfile.ConfigReader{Subfolder: "config"}
 
-func (o *Config) InitConfigFile(filename string) {
-	if o.init == false {
-		o.Filename = filename + "." + o.Env + ".yml"
-		if len(o.Filename) == 0 {
-			panic(errors.New("Config file must be declared"))
+	if file, err := configReader.GetFile(configFile); err == nil {
+		buf := new(bytes.Buffer)
+
+		if _, err := buf.ReadFrom(file); err == nil {
+			return buf.Bytes(), nil
+		} else {
+			return nil, err
 		}
-
-		var path string
-
-		path, _ = filepath.Abs(filename)
-
-		yamlFile, err := ioutil.ReadFile(path)
-
-		if err != nil {
-			panic(err)
-		}
-
-		err = yaml.Unmarshal(yamlFile, &o.Source)
-		if err != nil {
-			panic(err)
-		}
-
-		o.init = true
-	}
-}
-
-func (o *Config) existsFile(folder, filename string) bool {
-	pathSeparator := string(os.PathSeparator)
-
-	if len(folder) > 0 && folder[len(folder)-1:] != pathSeparator {
-		folder = folder + pathSeparator
-	}
-
-	name := folder + filename
-
-	if _, err := os.Stat(name); err == nil {
-		return true
 	} else {
-		return false
+		return nil, err
 	}
 }

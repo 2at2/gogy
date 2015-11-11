@@ -2,15 +2,13 @@ package main
 
 import (
 	"github.com/spf13/cobra"
-	"gogy/command"
+	"github.com/strebul/gogy/command"
 )
 
-var env string
-
 func main() {
-	var rootCmd = &cobra.Command{Use: "gg"}
+	var RootCmd = &cobra.Command{Use: "gg"}
 
-	rootCmd.AddCommand(command.QueryCmd)
-	rootCmd.Execute()
-
+	RootCmd.AddCommand(command.GogCmd)
+	RootCmd.AddCommand(command.GogIdCmd)
+	RootCmd.Execute()
 }

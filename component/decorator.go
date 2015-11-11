@@ -3,8 +3,8 @@ package component
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"gogy/model"
-	"gogy/model/log"
+	"github.com/strebul/gogy/model"
+	"github.com/strebul/gogy/model/log"
 	"reflect"
 	"regexp"
 	"strings"

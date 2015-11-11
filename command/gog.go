@@ -3,17 +3,18 @@ package command
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"gogy/component"
-	"gogy/model"
+	"github.com/strebul/gogy/component"
+	"github.com/strebul/gogy/model"
+	"gopkg.in/yaml.v2"
 	"strings"
 	"time"
 )
 
-var QueryCmd = &cobra.Command{
+var GogCmd = &cobra.Command{
 	Use:   "query [arguments to search]",
 	Short: "Searching logs by query",
 	Run: func(cmd *cobra.Command, args []string) {
-		execute(args)
+		executeGog(args)
 	},
 }
 
@@ -26,16 +27,24 @@ var message string
 var configFile string
 
 func init() {
-	QueryCmd.Flags().StringVarP(&level, "log-level", "l", "", "~debug or warning,error")
-	QueryCmd.Flags().IntVarP(&size, "size", "s", 100, "")
-	QueryCmd.Flags().IntVarP(&duration, "duration", "d", 24, "")
-	QueryCmd.Flags().StringVarP(&scriptId, "script-id", "", "", "")
-	QueryCmd.Flags().StringVarP(&sessionId, "session-id", "", "", "")
-	QueryCmd.Flags().StringVarP(&message, "message", "m", "", "")
-	QueryCmd.Flags().StringVarP(&configFile, "config", "c", "live", "dev, rel, live")
+	GogCmd.Flags().StringVarP(&level, "log-level", "l", "", "~debug or warning,error")
+	GogCmd.Flags().IntVarP(&size, "size", "s", 100, "")
+	GogCmd.Flags().IntVarP(&duration, "duration", "d", 24, "")
+	GogCmd.Flags().StringVarP(&scriptId, "script-id", "", "", "")
+	GogCmd.Flags().StringVarP(&sessionId, "session-id", "", "", "")
+	GogCmd.Flags().StringVarP(&message, "message", "m", "", "")
+	GogCmd.Flags().StringVarP(&configFile, "config", "c", "", "")
 }
 
-func execute(args []string) {
+func executeGog(args []string) {
+	var config component.Reader
+
+	if bytes, err := component.LoadConfig(configFile); err == nil {
+		yaml.Unmarshal(bytes, &config)
+	} else {
+		panic(err)
+	}
+
 	// Build query
 	var query string
 
@@ -66,11 +75,6 @@ func execute(args []string) {
 		query = "*"
 	}
 
-	config := component.Config{}
-	config.InitConfigFile(configFile)
-
-	fmt.Println(config.Source)
-
 	endTime := time.Now()
 	startTime := endTime.Add(-(time.Duration(duration) * time.Hour))
 
@@ -82,9 +86,9 @@ func execute(args []string) {
 	}
 
 	client := component.Client{
-		Host:     config.Source["logstash.host"].(string),
-		Login:    config.Source["logstash.login"].(string),
-		Password: config.Source["logstash.password"].(string),
+		Host:     config.ReadString("logstash.host"),
+		Login:    config.ReadString("logstash.login"),
+		Password: config.ReadString("logstash.password"),
 	}
 	list := client.FindLogs(request)
 

@@ -3,8 +3,8 @@ package component
 import (
 	"encoding/json"
 	"fmt"
-	"gogy/model"
-	"gogy/model/log"
+	"github.com/strebul/gogy/model"
+	"github.com/strebul/gogy/model/log"
 	"io/ioutil"
 	"net/http"
 	"strings"
