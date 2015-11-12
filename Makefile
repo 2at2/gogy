@@ -2,8 +2,7 @@
 all: fmt vet test build
 
 build:
-	go build -o bin/query query.go
-	go build -o bin/log log.go
+	go build -o bin/gg main.go
 
 fmt:
 	go fmt ./...

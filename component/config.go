@@ -1,22 +1,28 @@
 package component
 
 import (
-	"bytes"
 	"github.com/gotterdemarung/go-configfile"
+	"gopkg.in/yaml.v2"
 )
 
-func LoadConfig(configFile string) ([]byte, error) {
-	configReader := configfile.ConfigReader{Subfolder: "config"}
+const ConfigFolder = "config"
+const DefaultConfig = "params.yml"
 
-	if file, err := configReader.GetFile(configFile); err == nil {
-		buf := new(bytes.Buffer)
+func LoadConfig(configFile string) (Reader, error) {
+	configReader := configfile.ConfigReader{
+		Subfolder: ConfigFolder,
+	}
 
-		if _, err := buf.ReadFrom(file); err == nil {
-			return buf.Bytes(), nil
-		} else {
-			return nil, err
-		}
-	} else {
+	data, err := configReader.ReadBytes(configFile)
+
+	if err != nil {
 		return nil, err
 	}
+
+	var config Reader
+	if err := yaml.Unmarshal(data, &config); err != nil {
+		return nil, err
+	}
+
+	return config, nil
 }

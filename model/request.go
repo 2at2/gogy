@@ -1,8 +1,10 @@
 package model
 
+import "time"
+
 type Request struct {
 	Query     string
-	TimeStart int64
-	TimeEnd   int64
+	TimeStart time.Time
+	TimeEnd   time.Time
 	Size      int
 }

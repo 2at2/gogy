@@ -157,11 +157,14 @@ func (c *Client) buildRequest(q model.Request) string {
         ]
     }`
 
+	timeStart := q.TimeStart.Unix() * 1000
+	timeEnd := q.TimeEnd.Unix() * 1000
+
 	request = fmt.Sprintf(
 		request,
 		strings.Replace(q.Query, "\"", "\\\"", -1),
-		q.TimeStart,
-		q.TimeEnd,
+		timeStart,
+		timeEnd,
 		q.Size,
 	)
 

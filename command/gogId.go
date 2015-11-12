@@ -1,41 +1,34 @@
 package command
 
 import (
+	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/strebul/gogy/component"
 	"github.com/strebul/gogy/model"
-	"gopkg.in/yaml.v2"
 	"time"
 )
 
 var GogIdCmd = &cobra.Command{
-	Use:   "query [arguments to search]",
-	Short: "Searching logs by query",
-	Run: func(cmd *cobra.Command, args []string) {
-		var config component.Reader
-
-		if bytes, err := component.LoadConfig(configFile); err == nil {
-			yaml.Unmarshal(bytes, &config)
-		} else {
-			panic(err)
+	Use:   "id [string]",
+	Short: "Searching log by id",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		config, err := component.LoadConfig(configFile)
+		if err != nil {
+			return err
 		}
 
 		if len(id) == 0 {
-			fmt.Println("Set id")
-			return
+			return errors.New("Set id")
 		}
 
-		query := fmt.Sprintf(`_id:"%d"`, id)
-
-		endTime := time.Now()
-		startTime := endTime.Add(-(time.Duration(duration) * time.Hour))
+		query := fmt.Sprintf(`_id:"%s"`, id)
 
 		request := model.Request{
 			Query:     query,
-			TimeStart: startTime.UnixNano() / int64(time.Millisecond),
-			TimeEnd:   endTime.UnixNano() / int64(time.Millisecond),
-			Size:      size,
+			TimeStart: time.Now().Add(-time.Duration(duration) * time.Hour),
+			TimeEnd:   time.Now(),
+			Size:      10,
 		}
 
 		client := component.Client{
@@ -43,23 +36,24 @@ var GogIdCmd = &cobra.Command{
 			Login:    config.ReadString("logstash.login"),
 			Password: config.ReadString("logstash.password"),
 		}
+
 		list := client.FindLogs(request)
 
 		decorator := component.Decorator{}
 
 		decorator.DecorateRequest(request)
-		decorator.DecorateList(list, true)
+
+		for _, log := range list {
+			decorator.DecorateDetails(log)
+		}
+
+		return nil
 	},
 }
 
 var id string
-var size int
-var duration int
-var configFile string
 
 func init() {
 	GogIdCmd.Flags().StringVarP(&id, "id", "i", "", "")
-	GogIdCmd.Flags().IntVarP(&size, "size", "s", 10, "")
 	GogIdCmd.Flags().IntVarP(&duration, "duration", "d", 24, "")
-	GogIdCmd.Flags().StringVarP(&configFile, "config", "c", "", "")
 }

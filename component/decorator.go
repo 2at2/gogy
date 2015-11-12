@@ -21,9 +21,9 @@ func (o *Decorator) DecorateRequest(req model.Request) {
 
 	fmt.Printf(" • Query: %s", color.CyanString(req.Query))
 	fmt.Println()
-	fmt.Printf(" • Time start: %s", color.CyanString(fmt.Sprint(req.TimeStart)))
+	fmt.Printf(" • Time start: %s", color.CyanString(fmt.Sprint(req.TimeStart.Format(time.Stamp))))
 	fmt.Println()
-	fmt.Printf(" • Time end: %s", color.CyanString(fmt.Sprint(req.TimeEnd)))
+	fmt.Printf(" • Time end: %s", color.CyanString(fmt.Sprint(req.TimeEnd.Format(time.Stamp))))
 	fmt.Println()
 	fmt.Printf(" • Size: %s", color.CyanString(fmt.Sprint(req.Size)))
 	fmt.Println()
