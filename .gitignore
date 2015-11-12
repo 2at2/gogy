@@ -1,3 +1,4 @@
+.idea
 config/*.live.yml
 config/*.rel.yml
 config/params.yml
