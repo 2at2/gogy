@@ -67,6 +67,30 @@ func (c *Client) FindLogs(query model.Request) []log.Log {
 		if v := hit.Source["sessionId"]; v != nil {
 			sessionId = v.(string)
 		}
+		object := ""
+		if v := hit.Source["object"]; v != nil {
+			object = v.(string)
+		}
+		var exception log.Exception
+		if v := hit.Source["exception"]; v != nil {
+			reader := v.(map[string]interface{})
+
+			exception = log.Exception{
+				Message: reader["message"].(string),
+				Code:    int(reader["code"].(float64)),
+			}
+
+			if v := reader["trace"].([]interface{}); v != nil {
+				for _, val := range v {
+					reader := val.(map[string]interface{})
+
+					exception.Trace = append(exception.Trace, log.Trace{
+						File: reader["file"].(string),
+						Line: int(reader["line"].(float64)),
+					})
+				}
+			}
+		}
 
 		list = append(list, log.Log{
 			hit.Id,
@@ -76,7 +100,9 @@ func (c *Client) FindLogs(query model.Request) []log.Log {
 			host,
 			scriptId,
 			sessionId,
+			object,
 			hit.Source,
+			&exception,
 		})
 	}
 

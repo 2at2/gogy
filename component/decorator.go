@@ -70,51 +70,44 @@ func (o *Decorator) DecorateDetails(entity log.Log) {
 	fmt.Printf(" • Host: %s", color.WhiteString(entity.Host))
 	fmt.Println()
 
-	fmt.Printf(" • Script id: %s", color.GreenString(entity.ScriptId))
-	fmt.Println()
+	if len(entity.SessionId) > 0 {
+		fmt.Printf(" • Session id: %s", color.GreenString(entity.SessionId))
+		fmt.Println()
+	}
 
 	message := o.replacePlaceholders(entity.Message, entity.Source)
 	fmt.Printf(" • Message: %s", color.CyanString(message))
 	fmt.Println()
 
-	fmt.Printf(" • Session id: %s", color.YellowString(entity.SessionId))
+	fmt.Printf(" • Script id: %s", color.YellowString(entity.ScriptId))
 	fmt.Println()
 
-	fmt.Println(" • Details:")
+	fmt.Printf(" • Object: %s", (entity.Object))
+	fmt.Println()
+
+	fmt.Println(" • Exception:")
 
 	style1 := color.New(color.FgWhite, color.BgBlack)
-	if v := entity.Source["file"]; v != nil {
-		r := regexp.MustCompile("v[.0-9]+")
-		release := r.FindString(v.(string))
-		style1.Printf("   • Release: %s", color.YellowString(release))
+
+	if entity.Exception != nil {
+		style1.Printf("   • Message: %s", entity.Exception.Message)
+		style1.Println()
+		style1.Printf("   • Code: %d", entity.Exception.Code)
 		style1.Println()
 
-		style1.Printf("   • File: %s", v)
-		style1.Println()
-
-		if v := entity.Source["line"]; v != nil {
-			style1.Printf("   • Line: %s", fmt.Sprint(v))
-			fmt.Println()
-		}
-
-	}
-
-	// TODO
-	if exception := entity.Source["exception"]; exception != nil {
-		if v := entity.Source["exception.code"]; v != nil {
-			style1.Printf("   • exception.code: %s", v)
-			fmt.Println()
-		}
-		if v := entity.Source["exception.message"]; v != nil {
-			style1.Printf("   • exception.message: %s", v)
-			fmt.Println()
+		for _, trace := range entity.Exception.Trace {
+			style1.Printf("   • File: %s:%d", trace.File, trace.Line)
+			style1.Println()
 		}
 	}
 
 	fmt.Println()
 }
 
-func (obj *Decorator) replacePlaceholders(str string, placeholders map[string]interface{}) string {
+func (obj *Decorator) replacePlaceholders(
+	str string,
+	placeholders map[string]interface{},
+) string {
 	r := regexp.MustCompile(":\\w+")
 	for _, key := range r.FindAllString(str, -1) {
 		name := strings.Replace(key, ":", "", -1)

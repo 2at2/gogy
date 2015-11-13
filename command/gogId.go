@@ -1,11 +1,11 @@
 package command
 
 import (
-	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/strebul/gogy/component"
 	"github.com/strebul/gogy/model"
+	"strings"
 	"time"
 )
 
@@ -18,11 +18,9 @@ var GogIdCmd = &cobra.Command{
 			return err
 		}
 
-		if len(id) == 0 {
-			return errors.New("Set id")
-		}
+		ids := strings.Join(args, "\",\"")
 
-		query := fmt.Sprintf(`_id:"%s"`, id)
+		query := fmt.Sprintf(`_id:("%s")`, ids)
 
 		request := model.Request{
 			Query:     query,
@@ -45,15 +43,13 @@ var GogIdCmd = &cobra.Command{
 
 		for _, log := range list {
 			decorator.DecorateDetails(log)
+			//			fmt.Println(log.Source["exception"])
 		}
 
 		return nil
 	},
 }
 
-var id string
-
 func init() {
-	GogIdCmd.Flags().StringVarP(&id, "id", "i", "", "")
 	GogIdCmd.Flags().IntVarP(&duration, "duration", "d", 24, "")
 }
