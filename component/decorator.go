@@ -137,31 +137,35 @@ func (obj *Decorator) colorizeLevel(level log.LogLevel) string {
 	var str string
 
 	switch level.Code {
-	case log.DEBUG:
-		str = color.BlackString(level.Code)
+	case log.DEBUG_CODE:
+		str = color.BlackString(log.DEBUG_SHORT_STRING)
 		break
-	case log.INFO:
-		str = color.BlueString(level.Code)
+	case log.INFO_CODE:
+		str = color.BlueString(log.INFO_SHORT_STRING)
 		break
-	case log.NOTICE:
-		str = color.CyanString(level.Code)
+	case log.NOTICE_CODE:
+		str = color.CyanString(log.NOTICE_SHORT_STRING)
 		break
-	case log.WARNING:
-		str = color.YellowString(level.Code)
+	case log.WARNING_CODE:
+		str = color.YellowString(log.WARNING_SHORT_STRING)
 		break
-	case log.ERROR:
-		str = color.RedString(level.Code)
+	case log.ERROR_CODE:
+		str = color.RedString(log.ERROR_SHORT_STRING)
 		break
-	case log.CRITICAL, log.ALERT:
+	case log.CRITICAL_CODE:
 		s := color.New(color.FgWhite, color.BgRed).SprintFunc()
-		str = fmt.Sprint(s(level.Code))
+		str = fmt.Sprint(s(log.CRITICAL_SHORT_STRING))
 		break
-	case log.EMERGENCY:
+	case log.ALERT_CODE:
+		s := color.New(color.FgWhite, color.BgRed).SprintFunc()
+		str = fmt.Sprint(s(log.ALERT_SHORT_STRING))
+		break
+	case log.EMERGENCY_CODE:
 		s := color.New(color.FgWhite, color.Bold, color.BgHiRed).SprintFunc()
-		str = fmt.Sprint(s(level.Code))
+		str = fmt.Sprint(s(log.EMERGENCY_SHORT_STRING))
 		break
 	default:
-		str = level.Code
+		str = string(level.Code)
 	}
 
 	return str
