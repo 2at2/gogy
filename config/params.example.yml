@@ -1,4 +1,3 @@
-logstash:
-  host:
-  login:
-  password:
+logstash.host: ""
+logstash.login: ""
+logstash.password: ""

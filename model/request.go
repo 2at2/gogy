@@ -7,4 +7,5 @@ type Request struct {
 	TimeStart time.Time
 	TimeEnd   time.Time
 	Size      int
+	Order     string
 }

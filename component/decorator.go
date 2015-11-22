@@ -117,10 +117,16 @@ func (obj *Decorator) replacePlaceholders(
 			case "string":
 				value = color.CyanString(fmt.Sprint(value))
 				break
-			case "int", "int64":
+			case "int64":
 				value = color.BlueString(fmt.Sprintf("%d", value))
-			case "float", "float64":
-				value = color.BlueString(fmt.Sprintf("%f", value))
+			case "float64":
+				if regexp.MustCompile("^[0-9]+(.[0]+)?").MatchString(fmt.Sprintf("%f", value)) {
+					value = fmt.Sprintf("%d", int64(value.(float64)))
+				} else {
+					value = fmt.Sprintf("%f", value)
+				}
+
+				value = color.BlueString(value.(string))
 				break
 			default:
 				value = fmt.Sprint(value)

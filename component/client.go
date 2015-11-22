@@ -170,13 +170,7 @@ func (c *Client) buildRequest(q model.Request) string {
         "sort":[
           {
              "@timestamp":{
-                "order":"desc",
-                "ignore_unmapped":true
-             }
-          },
-          {
-             "@timestamp":{
-                "order":"desc",
+                "order":"%s",
                 "ignore_unmapped":true
              }
           }
@@ -192,6 +186,7 @@ func (c *Client) buildRequest(q model.Request) string {
 		timeStart,
 		timeEnd,
 		q.Size,
+		q.Order,
 	)
 
 	return request

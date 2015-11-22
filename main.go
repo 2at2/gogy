@@ -14,6 +14,7 @@ func main() {
 	RootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 	RootCmd.PersistentFlags().StringVarP(&ConfFile, "config", "c", "", "configuration file")
 
+	RootCmd.AddCommand(command.FrequencyCode)
 	RootCmd.AddCommand(command.GogCmd)
 	RootCmd.AddCommand(command.GogIdCmd)
 	RootCmd.Execute()

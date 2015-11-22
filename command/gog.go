@@ -9,11 +9,19 @@ import (
 	"time"
 )
 
+var gogLevel string
+var gogSize int
+var gogDuration int
+var gogScriptId string
+var gogSessionId string
+var gogMessage string
+var gogConfigFile string
+
 var GogCmd = &cobra.Command{
 	Use:   "query [arguments to search]",
 	Short: "Searching logs by query",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		config, err := component.LoadConfig(configFile)
+		config, err := component.LoadConfig(gogConfigFile)
 		if err != nil {
 			return err
 		}
@@ -22,9 +30,10 @@ var GogCmd = &cobra.Command{
 
 		request := model.Request{
 			Query:     query,
-			TimeStart: time.Now().Add(-time.Duration(duration) * time.Hour),
+			TimeStart: time.Now().Add(-time.Duration(gogDuration) * time.Hour),
 			TimeEnd:   time.Now(),
-			Size:      size,
+			Size:      gogSize,
+			Order:     "desc",
 		}
 
 		client := component.Client{
@@ -44,30 +53,30 @@ var GogCmd = &cobra.Command{
 }
 
 func init() {
-	GogCmd.Flags().StringVarP(&level, "log-level", "l", "", "~debug or warning,error")
-	GogCmd.Flags().IntVarP(&size, "size", "s", 100, "")
-	GogCmd.Flags().IntVarP(&duration, "duration", "d", 24, "")
-	GogCmd.Flags().StringVarP(&scriptId, "script-id", "", "", "")
-	GogCmd.Flags().StringVarP(&sessionId, "session-id", "", "", "")
-	GogCmd.Flags().StringVarP(&message, "message", "m", "", "")
-	GogCmd.Flags().StringVarP(&configFile, "config", "c", component.DefaultConfig, "")
+	GogCmd.Flags().StringVarP(&gogLevel, "log-level", "l", "", "~debug or warning,error")
+	GogCmd.Flags().IntVarP(&gogSize, "size", "s", 100, "")
+	GogCmd.Flags().IntVarP(&gogDuration, "duration", "d", 24, "")
+	GogCmd.Flags().StringVarP(&gogScriptId, "script-id", "", "", "")
+	GogCmd.Flags().StringVarP(&gogSessionId, "session-id", "", "", "")
+	GogCmd.Flags().StringVarP(&gogMessage, "message", "m", "", "")
+	GogCmd.Flags().StringVarP(&gogConfigFile, "config", "c", component.DefaultConfig, "")
 }
 
 func buildQuery(args []string) string {
 	var query string
 
-	if len(scriptId) > 0 {
-		query += fmt.Sprintf(`script-id: "%s"`, scriptId)
+	if len(gogScriptId) > 0 {
+		query += fmt.Sprintf(`script-id: "%s"`, gogScriptId)
 	}
-	if len(sessionId) > 0 {
-		query += fmt.Sprintf(`sessionId: "%s"`, sessionId)
+	if len(gogSessionId) > 0 {
+		query += fmt.Sprintf(`sessionId: "%s"`, gogSessionId)
 	}
-	if len(message) > 0 {
-		query += fmt.Sprintf(`message: "%s"`, message)
+	if len(gogMessage) > 0 {
+		query += fmt.Sprintf(`message: "%s"`, gogMessage)
 	}
 
-	if len(level) > 0 {
-		logLevel := levelCondition(level)
+	if len(gogLevel) > 0 {
+		logLevel := levelCondition(gogLevel)
 		if len(query) > 0 {
 			query += " AND (" + logLevel + ")"
 		} else {
