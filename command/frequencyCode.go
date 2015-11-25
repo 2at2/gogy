@@ -1,14 +1,14 @@
 package command
 
 import (
+	"database/sql"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/cobra"
 	"github.com/strebul/gogy/component"
 	"github.com/strebul/gogy/model"
-    _ "github.com/go-sql-driver/mysql"
-	"time"
-	"database/sql"
 	"log"
+	"time"
 )
 
 var FrequencyCode = &cobra.Command{
@@ -23,13 +23,13 @@ var FrequencyCode = &cobra.Command{
 		db, err := sql.Open("mysql", "root:root@/gogy?charset=utf8")
 
 		for {
-			var startTime time.Time;
-			var timestamp int;
+			var startTime time.Time
+			var timestamp int
 			var reader component.Reader
 
 			db.QueryRow("SELECT `timestamp` FROM `frequencyCode` ORDER BY id DESC LIMIT 1").Scan(&timestamp)
 			if timestamp == 0 {
-				startTime = time.Now().Add(-time.Duration(24) * time.Hour);
+				startTime = time.Now().Add(-time.Duration(24) * time.Hour)
 				log.Println("Used default start time")
 			} else {
 				startTime = time.Unix(int64(timestamp), 0)
@@ -57,7 +57,7 @@ var FrequencyCode = &cobra.Command{
 			for _, entity := range list {
 				reader = entity.Source
 
-				var exists int;
+				var exists int
 
 				db.QueryRow("SELECT `id` FROM `frequencyCode` WHERE `unique` = ? LIMIT 1", entity.Id).Scan(&exists)
 				if exists != 0 {
@@ -87,8 +87,6 @@ var FrequencyCode = &cobra.Command{
 				log.Println("Stored", stored, "rows")
 			}
 		}
-
-		return nil
 	},
 }
 

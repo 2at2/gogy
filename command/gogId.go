@@ -13,7 +13,7 @@ var GogIdCmd = &cobra.Command{
 	Use:   "id [string]",
 	Short: "Searching log by id",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		config, err := component.LoadConfig(gogConfigFile)
+		config, err := component.LoadConfig(gogIdConfigFile)
 		if err != nil {
 			return err
 		}
@@ -24,7 +24,7 @@ var GogIdCmd = &cobra.Command{
 
 		request := model.Request{
 			Query:     query,
-			TimeStart: time.Now().Add(-time.Duration(gogDuration) * time.Hour),
+			TimeStart: time.Now().Add(-time.Duration(gogIdDuration) * time.Hour),
 			TimeEnd:   time.Now(),
 			Size:      10,
 			Order:     "desc",
