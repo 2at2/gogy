@@ -9,11 +9,14 @@ import (
 	"time"
 )
 
+var gogIdDuration int
+var gogIdConfigFile string
+
 var GogIdCmd = &cobra.Command{
 	Use:   "id [string]",
 	Short: "Searching log by id",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		config, err := component.LoadConfig(gogIdConfigFile)
+		config, err := component.LoadConfig(ConfigFile)
 		if err != nil {
 			return err
 		}
@@ -44,15 +47,11 @@ var GogIdCmd = &cobra.Command{
 
 		for _, log := range list {
 			decorator.DecorateDetails(log)
-			//			fmt.Println(log.Source["exception"])
 		}
 
 		return nil
 	},
 }
-
-var gogIdDuration int
-var gogIdConfigFile string
 
 func init() {
 	GogIdCmd.Flags().IntVarP(&gogIdDuration, "duration", "d", 24, "")

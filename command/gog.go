@@ -15,13 +15,13 @@ var gogDuration int
 var gogScriptId string
 var gogSessionId string
 var gogMessage string
-var gogConfigFile string
 
 var GogCmd = &cobra.Command{
 	Use:   "query [arguments to search]",
 	Short: "Searching logs by query",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		config, err := component.LoadConfig(gogConfigFile)
+		fmt.Println(ConfigFile)
+		config, err := component.LoadConfig(ConfigFile)
 		if err != nil {
 			return err
 		}
@@ -59,7 +59,6 @@ func init() {
 	GogCmd.Flags().StringVarP(&gogScriptId, "script-id", "", "", "")
 	GogCmd.Flags().StringVarP(&gogSessionId, "session-id", "", "", "")
 	GogCmd.Flags().StringVarP(&gogMessage, "message", "m", "", "")
-	GogCmd.Flags().StringVarP(&gogConfigFile, "config", "c", component.DefaultConfig, "")
 }
 
 func buildQuery(args []string) string {

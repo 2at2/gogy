@@ -85,11 +85,41 @@ func (o *Decorator) DecorateDetails(entity log.Log) {
 	fmt.Printf(" • Object: %s", (entity.Object))
 	fmt.Println()
 
-	fmt.Println(" • Exception:")
+	fmt.Println(" • Source:")
+	for key, value := range entity.Source {
+		if value == nil || key == "log-level" || key == "message" ||
+			key == "script-id" || key == "@version" || key == "@timestamp" ||
+			key == "object" || key == "type" || key == "host" {
+			continue
+		}
 
-	style1 := color.New(color.FgWhite, color.BgBlack)
+		switch reflect.TypeOf(value).String() {
+		case "string":
+			value = color.CyanString(fmt.Sprint(value))
+			break
+		case "int64":
+			value = color.BlueString(fmt.Sprintf("%d", value))
+		case "float64":
+			if regexp.MustCompile("^[0-9]+(.[0]+)?").MatchString(fmt.Sprintf("%f", value)) {
+				value = fmt.Sprintf("%d", int64(value.(float64)))
+			} else {
+				value = fmt.Sprintf("%f", value)
+			}
 
-	if entity.Exception != nil {
+			value = color.BlueString(value.(string))
+			break
+		default:
+			value = fmt.Sprint(value)
+		}
+
+		fmt.Printf("   • %s: %s", color.MagentaString(key), value)
+		fmt.Println()
+	}
+
+	if entity.Exception != nil && entity.Exception.Code != 0 {
+		fmt.Println(" • Exception:")
+		style1 := color.New(color.FgWhite, color.BgBlack)
+
 		style1.Printf("   • Message: %s", entity.Exception.Message)
 		style1.Println()
 		style1.Printf("   • Code: %d", entity.Exception.Code)
