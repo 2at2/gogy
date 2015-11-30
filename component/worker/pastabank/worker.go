@@ -49,6 +49,12 @@ func Report(cl component.Client, duration int) {
 	}
 
 	fmt.Printf(" • %-20s %s", "Chargebacks:", color.RedString(fmt.Sprint(chargeback)))
+
+	// Similar chb
+	request = worker.Request(object, "Found similar chargeback with id :id", "", duration)
+	logs = cl.FindLogs(request)
+
+	fmt.Printf(" / %s", color.BlackString(fmt.Sprint(cap(logs))))
 	fmt.Println()
 
 	// Processed alerts
@@ -61,6 +67,12 @@ func Report(cl component.Client, duration int) {
 	}
 
 	fmt.Printf(" • %-20s %s", "Alerts:", color.RedString(fmt.Sprint(alerts)))
+
+	// Similar alerts
+	request = worker.Request(object, "Found similar alert with id :id", "", duration)
+	logs = cl.FindLogs(request)
+
+	fmt.Printf(" / %s", color.BlackString(fmt.Sprint(cap(logs))))
 	fmt.Println()
 
 	// Total
