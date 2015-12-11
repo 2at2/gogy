@@ -22,21 +22,26 @@ func Report(cl component.Client, duration int) {
 	request = worker.Request(object, "Created mail with id :id", "", duration)
 	logs = cl.FindLogs(request)
 
-	fmt.Printf(" • %-20s %s", "Received:", color.CyanString(fmt.Sprint(cap(logs))))
+	fmt.Printf(" • %-30s %s", "Mail (Received / Processed):", color.CyanString(fmt.Sprint(cap(logs))))
 	fmt.Println()
 
 	// Processed mails
 	request = worker.Request(object, "Found mail with id :id", "", duration)
 	logs = cl.FindLogs(request)
 
-	fmt.Printf(" • %-20s %s", "Processed:", color.CyanString(fmt.Sprint(cap(logs))))
+	fmt.Printf(" • %-30s %s", "Processed:", color.CyanString(fmt.Sprint(cap(logs))))
 	fmt.Println()
 
 	// Files
 	request = worker.Request(object, "Starts parsing attach :file", "", duration)
 	logs = cl.FindLogs(request)
 
-	fmt.Printf(" • %-20s %s", "Files:", color.CyanString(fmt.Sprint(cap(logs))))
+	fmt.Printf(" • %-30s %s", "Files (found / unknown):", color.CyanString(fmt.Sprint(cap(logs))))
+
+	request = worker.Request(object, "Unknown file :file", "", duration)
+	logs = cl.FindLogs(request)
+
+	fmt.Printf(" / %s", color.BlackString(fmt.Sprint(cap(logs))))
 	fmt.Println()
 
 	// Processed chb
@@ -48,7 +53,7 @@ func Report(cl component.Client, duration int) {
 		chargeback += int(log.Source["c1"].(float64))
 	}
 
-	fmt.Printf(" • %-20s %s", "Chargebacks:", color.RedString(fmt.Sprint(chargeback)))
+	fmt.Printf(" • %-30s %s", "Chargebacks (new / similar):", color.RedString(fmt.Sprint(chargeback)))
 
 	// Similar chb
 	request = worker.Request(object, "Found similar chargeback with id :id", "", duration)
@@ -66,7 +71,7 @@ func Report(cl component.Client, duration int) {
 		alerts += int(log.Source["c1"].(float64))
 	}
 
-	fmt.Printf(" • %-20s %s", "Alerts:", color.RedString(fmt.Sprint(alerts)))
+	fmt.Printf(" • %-30s %s", "Alerts (new / similar):", color.RedString(fmt.Sprint(alerts)))
 
 	// Similar alerts
 	request = worker.Request(object, "Found similar alert with id :id", "", duration)
@@ -84,7 +89,7 @@ func Report(cl component.Client, duration int) {
 		sendCount += int(log.Source["count"].(float64))
 	}
 
-	fmt.Printf(" • %-20s %s", "Send:", color.CyanString(fmt.Sprint(sendCount)))
+	fmt.Printf(" • %-30s %s", "Send:", color.CyanString(fmt.Sprint(sendCount)))
 	fmt.Println()
 
 	// Instances
@@ -99,6 +104,6 @@ func Report(cl component.Client, duration int) {
 		}
 	}
 
-	fmt.Printf(" • %-20s %s", "Instances (last h):", color.CyanString(fmt.Sprint(len(instances))))
+	fmt.Printf(" • %-30s %s", "Instances (last h):", color.CyanString(fmt.Sprint(len(instances))))
 	fmt.Println()
 }

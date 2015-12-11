@@ -20,7 +20,6 @@ var GogCmd = &cobra.Command{
 	Use:   "query [arguments to search]",
 	Short: "Searching logs by query",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println(ConfigFile)
 		config, err := component.LoadConfig(ConfigFile)
 		if err != nil {
 			return err
