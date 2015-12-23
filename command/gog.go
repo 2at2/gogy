@@ -15,6 +15,7 @@ var gogDuration int
 var gogScriptId string
 var gogSessionId string
 var gogMessage string
+var gogObject string
 
 var GogCmd = &cobra.Command{
 	Use:   "query [arguments to search]",
@@ -58,6 +59,7 @@ func init() {
 	GogCmd.Flags().StringVarP(&gogScriptId, "script-id", "", "", "")
 	GogCmd.Flags().StringVarP(&gogSessionId, "session-id", "", "", "")
 	GogCmd.Flags().StringVarP(&gogMessage, "message", "m", "", "")
+	GogCmd.Flags().StringVarP(&gogObject, "object", "o", "", "")
 }
 
 func buildQuery(args []string) string {
@@ -71,6 +73,14 @@ func buildQuery(args []string) string {
 	}
 	if len(gogMessage) > 0 {
 		query += fmt.Sprintf(`message: "%s"`, gogMessage)
+	}
+	if len(gogObject) > 0 {
+		fmt.Println(gogObject)
+		object := strings.Replace(gogObject, "\\", ".", -1)
+		if strings.HasPrefix(object, ".") {
+			object = object[1:len(object)]
+		}
+		query += fmt.Sprintf(`object: "%s"`, object)
 	}
 
 	if len(gogLevel) > 0 {

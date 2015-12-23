@@ -10,7 +10,6 @@ import (
 )
 
 var gogIdDuration int
-var gogIdConfigFile string
 
 var GogIdCmd = &cobra.Command{
 	Use:   "id [string]",
@@ -55,5 +54,4 @@ var GogIdCmd = &cobra.Command{
 
 func init() {
 	GogIdCmd.Flags().IntVarP(&gogIdDuration, "duration", "d", 24, "")
-	GogIdCmd.Flags().StringVarP(&gogIdConfigFile, "config", "c", component.DefaultConfig, "")
 }
