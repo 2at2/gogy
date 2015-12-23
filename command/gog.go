@@ -7,6 +7,7 @@ import (
 	"github.com/strebul/gogy/model"
 	"strings"
 	"time"
+	"github.com/strebul/gogy/model/log"
 )
 
 var gogLevel string
@@ -106,15 +107,47 @@ func buildQuery(args []string) string {
 func levelCondition(str string) string {
 	var query string
 
+	var levels []string
+
+	levels = append(
+		levels,
+		log.DEBUG_LONG_STRING,
+		log.INFO_LONG_STRING,
+		log.NOTICE_LONG_STRING,
+		log.WARNING_LONG_STRING,
+		log.ERROR_LONG_STRING,
+		log.CRITICAL_LONG_STRING,
+		log.ALERT_LONG_STRING,
+		log.EMERGENCY_LONG_STRING,
+	)
+
 	if len(str) > 0 {
 		var include []string
 		var exclude []string
+
 		for _, val := range strings.Split(str, ",") {
 			if strings.HasPrefix(val, "~") {
 				exclude = append(exclude, val[1:len(val)])
 			} else {
 				include = append(include, val)
 			}
+		}
+
+		if cap(include) == 1 {
+			var list []string
+			level := include[0]
+
+			s := false
+			for _, val := range levels {
+				if level == val {
+					s = true
+				}
+				if s {
+					list = append(list, val)
+				}
+			}
+
+			include = list
 		}
 
 		if cap(include) > 0 {
