@@ -75,7 +75,6 @@ func buildQuery(args []string) string {
 		query += fmt.Sprintf(`message: "%s"`, gogMessage)
 	}
 	if len(gogObject) > 0 {
-		fmt.Println(gogObject)
 		object := strings.Replace(gogObject, "\\", ".", -1)
 		if strings.HasPrefix(object, ".") {
 			object = object[1:len(object)]
