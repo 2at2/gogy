@@ -92,18 +92,21 @@ func (c *Client) FindLogs(query model.Request) []log.Log {
 			}
 		}
 
-		list = append(list, log.Log{
-			hit.Id,
-			level,
-			message,
-			t,
-			host,
-			scriptId,
-			sessionId,
-			object,
-			hit.Source,
-			&exception,
-		})
+		list = append(
+			list,
+			log.Log{
+				hit.Id,
+				level,
+				message,
+				t,
+				host,
+				scriptId,
+				sessionId,
+				object,
+				hit.Source,
+				&exception,
+			},
+		)
 	}
 
 	return list

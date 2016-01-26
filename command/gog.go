@@ -5,9 +5,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/strebul/gogy/component"
 	"github.com/strebul/gogy/model"
+	"github.com/strebul/gogy/model/log"
 	"strings"
 	"time"
-	"github.com/strebul/gogy/model/log"
 )
 
 var gogLevel string
@@ -67,15 +67,27 @@ func buildQuery(args []string) string {
 	var query string
 
 	if len(gogScriptId) > 0 {
+		if len(query) > 0 {
+			query += " AND "
+		}
 		query += fmt.Sprintf(`script-id: "%s"`, gogScriptId)
 	}
 	if len(gogSessionId) > 0 {
+		if len(query) > 0 {
+			query += " AND "
+		}
 		query += fmt.Sprintf(`sessionId: "%s"`, gogSessionId)
 	}
 	if len(gogMessage) > 0 {
+		if len(query) > 0 {
+			query += " AND "
+		}
 		query += fmt.Sprintf(`message: "%s"`, gogMessage)
 	}
 	if len(gogObject) > 0 {
+		if len(query) > 0 {
+			query += " AND "
+		}
 		object := strings.Replace(gogObject, "\\", ".", -1)
 		if strings.HasPrefix(object, ".") {
 			object = object[1:len(object)]
